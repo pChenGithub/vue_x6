@@ -59,7 +59,7 @@ import {
 import { showMessage } from '@/utils/message'
 import { useWorkflowStore } from '@/stores/workflowStore'
 import { nodeConfigMap, portGroups, portItems } from '@/config/nodeConfig'
-import { type PanelItem, type NodeData } from '@/types/workflow'
+import { type PanelItem, type NodeData, NodeCategory } from '@/types/workflow'
 
 // Store实例
 const workflowStore = useWorkflowStore()
@@ -113,7 +113,8 @@ const startDrag = (event: DragEvent, item: PanelItem) => {
       groups: portGroups,
       items: portItems
     },
-    data: { type: item.type, label: item.label }
+    data: { type: item.type, label: item.label,
+      isContainer: NodeCategory.RELATION===item.category}
   })
   
   // 开始拖拽
@@ -195,8 +196,8 @@ const initGraph = () => {
         findParent({ node }) {
           const bbox = node.getBBox()
           return this.getNodes().filter((node) => {
-            const data = node.getData<{ parent: boolean }>()
-            if (true) {
+            const data = node.getData<NodeData>()
+            if (data.isContainer) {
               const targetBBox = node.getBBox()
               return bbox.isIntersectWithRect(targetBBox)
             }
@@ -290,7 +291,7 @@ const setupEventListeners = () => {
   if (!graph) return
   
   // Dnd 插件放置完成事件
-  graph.on('drop', ({ e, node, x, y }: { e: MouseEvent, node: Node, x: number, y: number }) => {
+  graph.on('drop', ({ node, x, y }: { e: MouseEvent, node: Node, x: number, y: number }) => {
     const nodeData = node.getData() as NodeData
     const config = nodeConfigMap[nodeData.type]
     
@@ -372,6 +373,39 @@ const setupEventListeners = () => {
   graph.on('node:moved', ({ node, x, y }) => {
     checkAndHandleContainerDrop(node, x, y)
   })
+
+  // 添加键盘监听
+  window.addEventListener('keydown', handleKeyDown)
+}
+
+/**
+ * 键盘事件处理 - Delete 和 Backspace 删除选中节点
+ */
+const handleKeyDown = (e: KeyboardEvent) => {
+  // 检查是否在输入框中
+  const target = e.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    return
+  }
+
+  if ((e.key === 'Delete' || e.key === 'Backspace') && workflowStore.selectedNodeId) {
+    e.preventDefault()
+    const nodeId = workflowStore.selectedNodeId
+    const node = graph!.getCellById(nodeId)
+    
+    if (node && node.isNode()) {
+      // 获取连接到此节点的边并删除
+      const edges = graph!.getConnectedEdges(node)
+      edges.forEach(edge => edge.remove())
+      
+      // 删除节点
+      node.remove()
+      
+      // 清除选中状态
+      workflowStore.selectNode(null)
+      showMessage('success', '节点已删除')
+    }
+  }
 }
 
 /**
@@ -458,29 +492,6 @@ const checkAndHandleContainerDrop = (node: Node, x: number, y: number) => {
 }
 
 /**
- * 查找指定位置的容器节点
- */
-const findContainerAtPosition = (x: number, y: number): Node | null => {
-  if (!graph) return null
-  
-  // 从后往前遍历（优先选择顶层容器）
-  const nodes = graph.getNodes().reverse()
-  
-  for (const node of nodes) {
-    const data = node.getData() as NodeData
-    if (!data?.isContainer) continue
-    
-    const bbox = node.getBBox()
-    if (x > bbox.x && x < bbox.x + bbox.width &&
-        y > bbox.y && y < bbox.y + bbox.height) {
-      return node
-    }
-  }
-  
-  return null
-}
-
-/**
  * 放大
  */
 const handleZoomIn = () => {
@@ -547,6 +558,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  // 移除键盘监听
+  window.removeEventListener('keydown', handleKeyDown)
   if (dnd) {
     dnd.dispose()
   }

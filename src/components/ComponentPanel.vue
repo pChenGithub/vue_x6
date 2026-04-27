@@ -84,7 +84,9 @@
             v-for="item in filteredActionComponents"
             :key="item.type"
             class="component-item"
-            @click="handleClick($event, item)"
+            draggable="true"
+            @dragstart="handleDragStart($event, item)"
+            @click="handleClick($event)"
           >
             <div class="component-icon" :style="{ background: getComponentColor(item.type) }">
               <component :is="getComponentIcon(item.type)" />
@@ -201,10 +203,15 @@ const getComponentIcon = (type: NodeType) => {
  */
 const handleDragStart = (event: DragEvent, item: PanelItem) => {
   // 调用 X6Canvas 的 startDrag 方法启动 Dnd 插件拖拽
+  console.log("控件被拖动");
   props.startDrag?.(event, item)
 }
-const handleClick = (event: MouseEvent, item: PanelItem) => {
-    props.startDragClick?.(event, item)
+const handleClick = (event: MouseEvent) => {
+    //props.startDragClick?.(event, item)
+    event.target?.dispatchEvent(new MouseEvent('dragstart', {
+        bubbles: true,
+        cancelable: true
+      }))
 }
 </script>
 
