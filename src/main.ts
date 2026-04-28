@@ -4,6 +4,7 @@ import Antd from 'ant-design-vue'
 import App from './App.vue'
 import 'ant-design-vue/dist/reset.css'
 import './styles/global.css'
+import './styles/node.css'
 
 // 创建 Pinia 实例
 const pinia = createPinia()

@@ -41,13 +41,15 @@
       ref="containerRef" 
       class="x6-graph-container"
     />
+    <!-- Vue 组件容器 -->
+    <component :is="getTeleport()" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
-import { Graph, Node } from '@antv/x6'
-import { Dnd } from '@antv/x6-plugin-dnd'
+import { Graph, Node, Dnd } from '@antv/x6'
+import { register, getTeleport } from '@antv/x6-vue-shape'
 import { 
   PlusOutlined,
   MinusOutlined,
@@ -59,7 +61,7 @@ import {
 import { showMessage } from '@/utils/message'
 import { useWorkflowStore } from '@/stores/workflowStore'
 import { nodeConfigMap, portGroups, portItems } from '@/config/nodeConfig'
-import { type PanelItem, type NodeData, NodeCategory } from '@/types/workflow'
+import { type PanelItem, type NodeData, NodeCategory, NodeType } from '@/types/workflow'
 
 // Store实例
 const workflowStore = useWorkflowStore()
@@ -89,70 +91,12 @@ const startDrag = (event: DragEvent, item: PanelItem) => {
   if (!config) return
   
   // 创建用于拖拽预览的临时节点
+  // 根据节点类型选择合适的 shape
   const node = graph.createNode({
-    width: config.width,
-    height: config.height,
-    shape: 'rect',
-    label: item.label,
-    attrs: {
-      body: {
-        fill: config.color,
-        stroke: '#000000',
-        strokeWidth: 1,
-        rx: 8,
-        ry: 8
-      },
-      label: {
-        fill: '#ffffff',
-        fontSize: 14,
-        textAnchor: 'middle',
-        dominantBaseline: 'middle'
-      }
-    },
-    ports: {
-      groups: portGroups,
-      items: portItems
-    },
+    shape: item.type,
     data: { type: item.type, label: item.label,
-      isContainer: NodeCategory.RELATION===item.category}
-  })
-  
-  // 开始拖拽
-  dnd.start(node, event)
-}
-// 
-const startDragClick = (event: MouseEvent, item: PanelItem) => {
-  if (!graph || !dnd) return
-  
-  const config = nodeConfigMap[item.type]
-  if (!config) return
-  
-  // 创建用于拖拽预览的临时节点
-  const node = graph.createNode({
-    width: config.width,
-    height: config.height,
-    shape: 'rect',
-    label: item.label,
-    attrs: {
-      body: {
-        fill: config.color,
-        stroke: '#000000',
-        strokeWidth: 1,
-        rx: 8,
-        ry: 8
-      },
-      label: {
-        fill: '#ffffff',
-        fontSize: 14,
-        textAnchor: 'middle',
-        dominantBaseline: 'middle'
-      }
-    },
-    ports: {
-      groups: portGroups,
-      items: portItems
-    },
-    data: { type: item.type, label: item.label }
+      isContainer: NodeCategory.RELATION===item.category},
+    zIndex: config.zIndex,
   })
   
   // 开始拖拽
@@ -207,6 +151,9 @@ const initGraph = () => {
       },
   })
   
+  // 注册节点
+  registerNodes()
+  
   // 初始化 Dnd 插件
   dnd = new Dnd({
     target: graph as Graph,
@@ -235,52 +182,16 @@ const initGraph = () => {
  */
 const registerNodes = () => {
   if (!graph) return
-  
-  // 遍历所有节点配置，注册节点
-  Object.values(nodeConfigMap).forEach(config => {
-    // X6 2.x 使用 Graph.registerNode 注册节点
-    const nodeDefinition = {
-      width: config.width,
-      height: config.height,
-      // SVG markup 定义（只定义结构，不定义样式）
-      markup: [
-        { tagName: 'rect', selector: 'body' },
-        { tagName: 'text', selector: 'label' }
-      ],
-      // 样式属性写在外部 attrs 对象中
-      attrs: {
-        body: {
-          fill: config.color,
-          stroke: '#ff0000',
-          strokeWidth: 1,
-          rx: 8,
-          ry: 8
-        },
-        label: {
-          fill: '#ffffff',
-          fontSize: 14,
-          textAnchor: 'middle',
-          dominantBaseline: 'middle'
-        }
-      },
-      // 连接柱配置
-      ports: {
-        groups: portGroups
-      },
-      // 节点数据
-      data: {
-        type: config.type,
-        label: config.label,
-        isContainer: config.isContainer
-      }
-    }
-    
-    // 注册节点
-    Graph.registerNode(
-      config.type,
-      nodeDefinition as unknown as Record<string, unknown>,
-      true
-    )
+  Object.values(nodeConfigMap).forEach((nodeConfig) => {
+    // 注册时间条件 Vue 组件节点（继承 vue-shape）
+    register({
+      shape: nodeConfig.type,
+      inherit: 'vue-shape',
+      width: nodeConfig.width, height: nodeConfig.height, // 默认的尺寸
+      component: nodeConfig.component,
+      ports: {groups: portGroups, items: portItems},
+      zIndex: nodeConfig.zIndex
+    })
   })
 }
 
@@ -360,7 +271,14 @@ const setupEventListeners = () => {
     // 设置边样式
     edge.attr('line/stroke', '#000000')
     edge.attr('line/strokeWidth', 2)
-    edge.setRouter("orth")
+    edge.setRouter({
+      name: 'manhattan', // 路由类型
+      args: {
+        padding: 30,        // 节点周围留白
+        cornerRadius: 0,    // 直角圆角（0=直角）
+        direction: "auto"
+      },
+    })
   })
   
   // 缩放变化
@@ -370,8 +288,33 @@ const setupEventListeners = () => {
   })
   
   // 容器节点检测 - 拖入子节点
+  /*
   graph.on('node:moved', ({ node, x, y }) => {
     checkAndHandleContainerDrop(node, x, y)
+  })
+    */
+  graph.on('node:embedded', ({ node, currentParent}) => {
+    // 1. 只处理我们的容器节点
+    if (currentParent?.shape !== 'custom-container') return
+
+    // 2. 获取容器里所有子节点
+    const children = currentParent.getChildren() || []
+
+    // 3. 配置：垂直排列间距
+    const padding = 12 // 容器内边距
+    const gap = 10     // 子节点之间间距
+
+    // 4. 垂直布局子节点
+    let currentY = padding
+    children.forEach((childNode) => {
+      const child = childNode as Node
+      child.position(padding, currentY) // x 固定，y 递增
+      currentY += child.getBBox().height + gap
+    })
+
+    // 5. 容器自动增高（包裹所有子节点）
+    const newHeight = currentY + padding
+    currentParent.resize(currentParent.getBBox().width, newHeight)
   })
 
   // 添加键盘监听
@@ -571,7 +514,6 @@ onUnmounted(() => {
 // 暴露方法给父组件调用
 defineExpose({
   startDrag,
-  startDragClick
 })
 </script>
 

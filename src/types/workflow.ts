@@ -62,7 +62,10 @@ export interface NodeConfig {
     allowedSources?: NodeType[]
     /** 允许的连接目标类型 */
     allowedTargets?: NodeType[]
-  }
+  },
+  // vue 组件
+  component: any,
+  zIndex: number
 }
 
 /** 连接柱配置接口 */

@@ -86,7 +86,6 @@
             class="component-item"
             draggable="true"
             @dragstart="handleDragStart($event, item)"
-            @click="handleClick($event)"
           >
             <div class="component-icon" :style="{ background: getComponentColor(item.type) }">
               <component :is="getComponentIcon(item.type)" />
@@ -100,10 +99,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
-import * as Icons from '@ant-design/icons-vue'
+import { ref, computed} from 'vue'
 import { NodeType, NodeCategory, type PanelItem } from '@/types/workflow'
-import { nodeConfigMap } from '@/config/nodeConfig'
+import { getComponentColor, getComponentIcon } from '@/types/common';
+import { nodeConfigMap } from '@/config/nodeConfig';
 
 /** 接收父组件传入的 startDrag 方法 */
 const props = defineProps<{
@@ -114,89 +113,39 @@ const props = defineProps<{
 // 搜索文本
 const searchText = ref('')
 
-// 图标名称映射表（用于动态获取图标组件）
-const iconNameMap: Record<NodeType, string> = {
-  [NodeType.START]: 'PlayCircleFilled',
-  [NodeType.END]: 'StopFilled',
-  [NodeType.CONDITION_TIME]: 'ClockCircleFilled',
-  [NodeType.CONDITION_EVENT]: 'ThunderboltFilled',
-  [NodeType.CONDITION_ATTRIBUTE]: 'AppstoreFilled',
-  [NodeType.CONDITION_CALCULATE]: 'CalculatorFilled',
-  [NodeType.RELATION_OR]: 'BranchesOutlined',
-  [NodeType.RELATION_AND]: 'PlusSquareFilled',
-  [NodeType.ACTION_LIGHT]: 'BulbFilled'
-}
-
 // 当前展开的面板
 const activeKeys = ref<string[]>(['input', 'condition', 'relation', 'action'])
-
-/**
- * 所有组件配置列表
- */
-const allComponents: PanelItem[] = [
-  // 输入组件
-  { type: NodeType.START, label: '开始', category: NodeCategory.INPUT },
-  { type: NodeType.END, label: '结束', category: NodeCategory.INPUT },
-  // 条件组件
-  { type: NodeType.CONDITION_TIME, label: '时间条件', category: NodeCategory.CONDITION },
-  { type: NodeType.CONDITION_EVENT, label: '事件条件', category: NodeCategory.CONDITION },
-  { type: NodeType.CONDITION_ATTRIBUTE, label: '属性条件', category: NodeCategory.CONDITION },
-  { type: NodeType.CONDITION_CALCULATE, label: '计算条件', category: NodeCategory.CONDITION },
-  // 关系组件
-  { type: NodeType.RELATION_OR, label: '或关系', category: NodeCategory.RELATION },
-  { type: NodeType.RELATION_AND, label: '且关系', category: NodeCategory.RELATION },
-  // 执行组件
-  { type: NodeType.ACTION_LIGHT, label: '开灯', category: NodeCategory.ACTION }
-]
 
 /**
  * 根据分类过滤组件
  */
 const filteredInputComponents = computed(() => {
-  return allComponents.filter(
+  return Object.values(nodeConfigMap).filter(
     c => c.category === NodeCategory.INPUT && 
     (!searchText.value || c.label.includes(searchText.value))
   )
 })
 
 const filteredConditionComponents = computed(() => {
-  return allComponents.filter(
+  return Object.values(nodeConfigMap).filter(
     c => c.category === NodeCategory.CONDITION && 
     (!searchText.value || c.label.includes(searchText.value))
   )
 })
 
 const filteredRelationComponents = computed(() => {
-  return allComponents.filter(
+  return Object.values(nodeConfigMap).filter(
     c => c.category === NodeCategory.RELATION && 
     (!searchText.value || c.label.includes(searchText.value))
   )
 })
 
 const filteredActionComponents = computed(() => {
-  return allComponents.filter(
+  return Object.values(nodeConfigMap).filter(
     c => c.category === NodeCategory.ACTION && 
     (!searchText.value || c.label.includes(searchText.value))
   )
 })
-
-/**
- * 获取组件颜色
- */
-const getComponentColor = (type: NodeType): string => {
-  return nodeConfigMap[type]?.color || '#999999'
-}
-
-/**
- * 获取组件图标组件（动态获取，避免类型定义不完整问题）
- */
-const getComponentIcon = (type: NodeType) => {
-  const iconName = iconNameMap[type]
-  // 使用 as any 绕过 TypeScript 类型检查，动态获取图标组件
-  const IconComponent = (Icons as Record<string, unknown>)[iconName]
-  // 如果图标不存在，返回备用组件
-  return IconComponent || (() => h('span', { style: { fontSize: '16px' } }, '?'))
-}
 
 /**
  * 开始拖拽（调用 X6Canvas 的 startDrag 方法）
@@ -206,6 +155,7 @@ const handleDragStart = (event: DragEvent, item: PanelItem) => {
   console.log("控件被拖动");
   props.startDrag?.(event, item)
 }
+/*
 const handleClick = (event: MouseEvent) => {
     //props.startDragClick?.(event, item)
     event.target?.dispatchEvent(new MouseEvent('dragstart', {
@@ -213,6 +163,7 @@ const handleClick = (event: MouseEvent) => {
         cancelable: true
       }))
 }
+*/
 </script>
 
 <style scoped>

@@ -1,0 +1,50 @@
+/* vue节点样式 */
+.node-component {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 8px;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: #cfcfcf 1px solid;
+}
+
+.node-component:focus {
+  border: 2px solid #f09948;
+}
+
+/* 节点内容样式 */
+.node-content {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  display: flex;
+  /*flex-direction: row;*/
+  align-items: center;
+  justify-content: center;
+}
+
+/* 节点标签样式 */
+.node-label {
+  width: 62px;
+  height: 62px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 节点图标样式 */
+.node-icon {
+  width: 60px;
+  height: 60px;
+  color: #ffffff;
+  background-color: #65d6bf;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
