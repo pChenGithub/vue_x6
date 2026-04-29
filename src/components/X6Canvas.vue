@@ -96,7 +96,6 @@ const startDrag = (event: DragEvent, item: PanelItem) => {
     shape: item.type,
     data: { type: item.type, label: item.label,
       isContainer: NodeCategory.RELATION===item.category},
-    zIndex: config.zIndex,
   })
   
   // 开始拖拽
@@ -190,7 +189,6 @@ const registerNodes = () => {
       width: nodeConfig.width, height: nodeConfig.height, // 默认的尺寸
       component: nodeConfig.component,
       ports: {groups: portGroups, items: portItems},
-      zIndex: nodeConfig.zIndex
     })
   })
 }
@@ -232,7 +230,10 @@ const setupEventListeners = () => {
   // 节点点击选中
   graph.on('node:click', ({ node }) => {
     workflowStore.selectNode(node.id)
-    
+
+    // 将选中的节点切换到最上层
+    node.toFront()
+
     // 更新选中样式
     graph!.getNodes().forEach(n => {
       n.attr('body/stroke', '#000000')
@@ -241,7 +242,12 @@ const setupEventListeners = () => {
     node.attr('body/stroke', '#1890ff')
     node.attr('body/strokeWidth', 2)
   })
-  
+
+  // 节点开始拖拽时置顶
+  graph.on('node:moving', ({ node }) => {
+    node.toFront()
+  })
+
   // 画布点击取消选中
   graph.on('blank:click', () => {
     workflowStore.selectNode(null)
@@ -258,6 +264,10 @@ const setupEventListeners = () => {
   // 边点击选中
   graph.on('edge:click', ({ edge }) => {
     workflowStore.selectEdge(edge.id)
+
+    // 将选中的边切换到最上层
+    edge.toFront()
+
     graph!.getEdges().forEach(e => {
       e.attr('line/stroke', '#000000')
       e.attr('line/strokeWidth', 2)

@@ -20,8 +20,6 @@ const RELATION_HEIGHT = 216 // 默认高度
 const ACTION_WIDTH = 350
 const ACTION_HEIGHT = 110
 
-const ITEM_ZINDEX = 1000
-const RELATION_ZINDEX = 1
 export const nodeConfigMap: Record<NodeType, NodeConfig> = {
   /** 开始节点：流程入口，只能有出连接 */
   [NodeType.START]: {
@@ -38,7 +36,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.CONDITION_TIME, NodeType.CONDITION_EVENT, NodeType.CONDITION_ATTRIBUTE, NodeType.CONDITION_CALCULATE]
     },
     component: Input,
-    zIndex: ITEM_ZINDEX
   },
   /** 结束节点：流程出口，只能有入连接 */
   [NodeType.END]: {
@@ -55,7 +52,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedSources: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.ACTION_LIGHT]
     },
     component: Input,
-    zIndex: ITEM_ZINDEX
   },
   /** 时间条件组件 */
   [NodeType.CONDITION_TIME]: {
@@ -72,7 +68,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.ACTION_LIGHT]
     },
     component: ConditionTime,
-    zIndex: ITEM_ZINDEX
   },
   /** 事件条件组件 */
   [NodeType.CONDITION_EVENT]: {
@@ -89,7 +84,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.ACTION_LIGHT]
     },
     component: ConditionTime,
-    zIndex: ITEM_ZINDEX
   },
   /** 属性条件组件 */
   [NodeType.CONDITION_ATTRIBUTE]: {
@@ -106,7 +100,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.ACTION_LIGHT]
     },
     component: ConditionTime,
-    zIndex: ITEM_ZINDEX
   },
   /** 计算条件组件 */
   [NodeType.CONDITION_CALCULATE]: {
@@ -123,7 +116,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.ACTION_LIGHT]
     },
     component: ConditionTime,
-    zIndex: ITEM_ZINDEX
   },
   /** 或关系容器 - 多个条件或关系满足其一即可 */
   [NodeType.RELATION_OR]: {
@@ -140,7 +132,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.ACTION_LIGHT]
     },
     component: Relaytion,
-    zIndex: RELATION_ZINDEX
   },
   /** 且关系容器 - 所有条件或关系都满足 */
   [NodeType.RELATION_AND]: {
@@ -157,7 +148,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.ACTION_LIGHT]
     },
     component: Relaytion,
-    zIndex: RELATION_ZINDEX
   },
   /** 执行组件 - 开灯 */
   [NodeType.ACTION_LIGHT]: {
@@ -174,7 +164,6 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.END]
     },
     component: Action,
-    zIndex: ITEM_ZINDEX
   }
 }
 

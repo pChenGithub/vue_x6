@@ -65,7 +65,6 @@ export interface NodeConfig {
   },
   // vue 组件
   component: any,
-  zIndex: number
 }
 
 /** 连接柱配置接口 */
