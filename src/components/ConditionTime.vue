@@ -1,14 +1,11 @@
 <template>
   <div class="node-component">
-    <div class="node-content">
       <span class="node-label">条件</span>
       <component class="node-icon" :is="ComponentIcon" :style="{ background: ComponentColor }" />
       <div class="node-title-group">
         <span class="node-title">{{ title }}</span>
         <span class="node-title">{{ desp }}</span>
       </div>
-      <!--<a-date-picker placeholder="选择时间" />-->
-    </div>
   </div>
 </template>
 
@@ -82,26 +79,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.node-title-group {
-    width: 180px;
-    height: 60px;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  gap: 4px;
-  border: gray 1px solid;
-  border-left: 0px;
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
-  padding: 10px;
-}
-.node-title-group:focus {
-    border: red 1px solid;
-}
 
-.node-title {
-  font-size: 14px;
-  color: #000000a6;
-  font-weight: 500;
-}
 </style>

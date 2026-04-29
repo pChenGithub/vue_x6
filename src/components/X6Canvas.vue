@@ -257,7 +257,7 @@ const setupEventListeners = () => {
   
   // 边点击选中
   graph.on('edge:click', ({ edge }) => {
-    workflowStore.selectNode(null)
+    workflowStore.selectEdge(edge.id)
     graph!.getEdges().forEach(e => {
       e.attr('line/stroke', '#000000')
       e.attr('line/strokeWidth', 2)
@@ -322,7 +322,7 @@ const setupEventListeners = () => {
 }
 
 /**
- * 键盘事件处理 - Delete 和 Backspace 删除选中节点
+ * 键盘事件处理 - Delete 和 Backspace 删除选中节点或边
  */
 const handleKeyDown = (e: KeyboardEvent) => {
   // 检查是否在输入框中
@@ -331,19 +331,34 @@ const handleKeyDown = (e: KeyboardEvent) => {
     return
   }
 
+  // 删除边
+  if ((e.key === 'Delete' || e.key === 'Backspace') && workflowStore.selectedEdgeId) {
+    e.preventDefault()
+    const edgeId = workflowStore.selectedEdgeId
+    const edge = graph!.getCellById(edgeId)
+
+    if (edge && edge.isEdge()) {
+      edge.remove()
+      workflowStore.selectEdge(null)
+      showMessage('success', '连线已删除')
+    }
+    return
+  }
+
+  // 删除节点
   if ((e.key === 'Delete' || e.key === 'Backspace') && workflowStore.selectedNodeId) {
     e.preventDefault()
     const nodeId = workflowStore.selectedNodeId
     const node = graph!.getCellById(nodeId)
-    
+
     if (node && node.isNode()) {
       // 获取连接到此节点的边并删除
       const edges = graph!.getConnectedEdges(node)
       edges.forEach(edge => edge.remove())
-      
+
       // 删除节点
       node.remove()
-      
+
       // 清除选中状态
       workflowStore.selectNode(null)
       showMessage('success', '节点已删除')

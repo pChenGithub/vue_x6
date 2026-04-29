@@ -1,9 +1,7 @@
 <template>
   <div class="node-component">
-    <div class="node-content">
-      <component class="node-icon" :is="ComponentIcon" :style="{ background: ComponentColor }" />
-      <span class="node-title">{{ title }}</span>
-    </div>
+    <component class="node-icon" :is="ComponentIcon" :style="{ background: ComponentColor }" />
+    <span class="node-title">{{ title }}</span>
   </div>
 </template>
 
@@ -46,21 +44,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.node-content {
-    padding: 0;
-}
-
 .node-icon {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     position: absolute;
     inset-inline-start: 0px;
     inset-block-start: 0px;
-}
-
-.node-title {
-  font-size: 14px;
-  color: #000000a6;
-  font-weight: 500;
 }
 </style>

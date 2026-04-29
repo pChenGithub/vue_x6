@@ -1,8 +1,8 @@
+import Action from '@/components/Action.vue'
 import ConditionTime from '@/components/ConditionTime.vue'
 import Input from '@/components/Input.vue'
 import Relaytion from '@/components/Relaytion.vue'
 import { NodeType, NodeCategory, NodeConfig } from '@/types/workflow'
-import { opacity } from '@antv/x6/lib/registry/highlighter/opacity'
 
 /**
  * 节点配置映射表
@@ -17,8 +17,8 @@ const CONDITION_HEIGHT = 110
 const RELATION_WIDTH = 348
 const RELATION_HEIGHT = 216 // 默认高度
 
-const ACTION_WIDTH = 120
-const ACTION_HEIGHT = 50
+const ACTION_WIDTH = 350
+const ACTION_HEIGHT = 110
 
 const ITEM_ZINDEX = 1000
 const RELATION_ZINDEX = 1
@@ -164,8 +164,8 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
     type: NodeType.ACTION_LIGHT,
     label: '开灯',
     category: NodeCategory.ACTION,
-    width: 120,
-    height: 50,
+    width: ACTION_WIDTH,
+    height: ACTION_HEIGHT,
     color: '#13c2c2',
     isContainer: false,
     isDraggable: true,
@@ -173,7 +173,7 @@ export const nodeConfigMap: Record<NodeType, NodeConfig> = {
       maxOutEdges: 1,
       allowedTargets: [NodeType.RELATION_OR, NodeType.RELATION_AND, NodeType.END]
     },
-    component: ConditionTime,
+    component: Action,
     zIndex: ITEM_ZINDEX
   }
 }

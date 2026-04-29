@@ -15,7 +15,10 @@ export const useWorkflowStore = defineStore('workflow', () => {
   
   /** 当前选中的节点ID */
   const selectedNodeId = ref<string | null>(null)
-  
+
+  /** 当前选中的边ID */
+  const selectedEdgeId = ref<string | null>(null)
+
   /** 当前选中的节点数据 */
   const selectedNodeData = ref<NodeData | null>(null)
   
@@ -56,7 +59,8 @@ export const useWorkflowStore = defineStore('workflow', () => {
    */
   const selectNode = (nodeId: string | null) => {
     selectedNodeId.value = nodeId
-    
+    selectedEdgeId.value = null // 清除边选中
+
     if (nodeId && graph.value) {
       const node = graph.value.getCellById(nodeId)
       if (node && node.isNode()) {
@@ -65,6 +69,15 @@ export const useWorkflowStore = defineStore('workflow', () => {
     } else {
       selectedNodeData.value = null
     }
+  }
+
+  /**
+   * 选择边
+   */
+  const selectEdge = (edgeId: string | null) => {
+    selectedEdgeId.value = edgeId
+    selectedNodeId.value = null // 清除节点选中
+    selectedNodeData.value = null
   }
   
   /**
@@ -234,6 +247,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
     // 状态
     graph,
     selectedNodeId,
+    selectedEdgeId,
     selectedNodeData,
     workflowName,
     showGrid,
@@ -246,6 +260,7 @@ export const useWorkflowStore = defineStore('workflow', () => {
     // 方法
     setGraph,
     selectNode,
+    selectEdge,
     updateNodeData,
     updateNodeConfig,
     updateNodeLabel,
