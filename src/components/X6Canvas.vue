@@ -306,13 +306,6 @@ const setupEventListeners = () => {
     zoom.value = sx
     workflowStore.setZoom(sx)
   })
-  
-  // 容器节点检测 - 拖入子节点
-  /*
-  graph.on('node:moved', ({ node, x, y }) => {
-    checkAndHandleContainerDrop(node, x, y)
-  })
-    */
 
   graph.on('node:embedded', ({ currentParent }) => {
     // 只处理关系容器节点
@@ -449,110 +442,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
       // 清除选中状态
       workflowStore.selectNode(null)
       showMessage('success', '节点已删除')
-    }
-  }
-}
-
-/**
- * 检测并处理容器拖放
- */
-const checkAndHandleContainerDrop = (node: Node, x: number, y: number) => {
-  if (!graph) return
-
-  // 获取容器节点
-  const containerNodes = graph.getNodes().filter(n => {
-    const data = n.getData() as NodeData
-    return data?.isContainer && n.id !== node.id
-  })
-
-  // 遍历容器节点
-  for (const container of containerNodes) {
-    const containerData = container.getData() as NodeData
-    if (!containerData?.isContainer) continue
-
-    // 获取容器边界
-    const bbox = container.getBBox()
-
-    // 检查节点是否在容器内
-    if (x > bbox.x && x < bbox.x + bbox.width &&
-        y > bbox.y && y < bbox.y + bbox.height) {
-      // 如果节点已在该容器中，无需处理
-      const parent = node.getParent()
-      if (parent?.id === container.id) return
-
-      // 从原容器移除（如果有）
-      if (node.getParent()) {
-        node.setParent(null as unknown as Node)
-      }
-
-      // 添加到新容器
-      node.setParent(container, {
-        embed: true
-      })
-
-      // 配置：与 Vue 组件 .node-list 布局一致
-      const padding = 12
-      const gap = 6
-      const headHeight = 60
-
-      // 计算 .node-list 区域的起始 Y 坐标
-      const listStartY = bbox.y + headHeight + padding
-
-      // 垂直排列子节点
-      const childNodes = container.getChildren()?.filter(c => c.isNode()) || []
-      let currentY = listStartY
-      childNodes.forEach((child) => {
-        if (!child.isNode()) return
-        child.setPosition({ x: bbox.x + padding, y: currentY })
-        currentY += child.getBBox().height + gap
-      })
-
-      // 容器自动增高
-      if (childNodes.length > 0) {
-        const lastChild = childNodes[childNodes.length - 1] as Node
-        const lastChildBBox = lastChild.getBBox()
-        const newHeight = Math.max(lastChildBBox.bottom - bbox.y + padding, nodeConfigMap[containerData.type].height)
-        ;(container as Node).resize(bbox.width, newHeight)
-      }
-
-      showMessage('success', `已添加到 ${nodeConfigMap[containerData.type].label}`)
-      return
-    }
-  }
-
-  // 如果不在任何容器内，从容器中移除
-  const parent = node.getParent()
-  if (parent) {
-    const parentData = parent.getData() as NodeData
-    if (parentData?.isContainer) {
-      // 从容器移除
-      node.setParent(null as unknown as Node)
-
-      // 配置
-      const padding = 12
-      const gap = 6
-      const headHeight = 60
-      const bbox = parent.getBBox()
-
-      // 重新排列容器内的其他节点
-      const children = parent.getChildren()?.filter(c => c.isNode() && c.id !== node.id) || []
-      let currentY = bbox.y + headHeight + padding
-      children.forEach((child) => {
-        if (!child.isNode()) return
-        child.setPosition({ x: bbox.x + padding, y: currentY })
-        currentY += (child as Node).getBBox().height + gap
-      })
-
-      // 调整容器高度
-      if (children.length > 0) {
-        const lastChild = children[children.length - 1] as Node
-        const lastChildBBox = lastChild.getBBox()
-        const newHeight = Math.max(lastChildBBox.bottom - bbox.y + padding, nodeConfigMap[parentData.type].height)
-        ;(parent as Node).resize(bbox.width, newHeight)
-      } else {
-        // 没有子节点，恢复默认高度
-        ;(parent as Node).resize(bbox.width, nodeConfigMap[parentData.type].height)
-      }
     }
   }
 }

@@ -3,8 +3,6 @@ import ConditionTime from '@/components/ConditionTime.vue'
 import Input from '@/components/Input.vue'
 import Relaytion from '@/components/Relaytion.vue'
 import { NodeType, NodeCategory, NodeConfig } from '@/types/workflow'
-import { opacity } from '@antv/x6/lib/registry/highlighter/opacity'
-import { circle } from '@antv/x6/lib/registry/marker/circle'
 
 /**
  * 节点配置映射表
