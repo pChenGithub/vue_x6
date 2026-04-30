@@ -1,0 +1,60 @@
+/* 全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* X6画布样式 */
+.x6-graph {
+  width: 100%;
+  height: 100%;
+  background-color: #f5f5f5;
+}
+
+/* 节点样式 */
+.x6-node {
+  cursor: move;
+}
+
+.x6-node.selected rect,
+.x6-node.selected circle {
+  stroke: #1890ff;
+  stroke-width: 2px;
+}
+
+/* 连接柱样式 */
+.port {
+  width: 10px;
+  height: 10px;
+  background: #000000;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.port:hover,
+.x6-node:hover .port {
+  opacity: 1;
+}
+
+/* 拖拽预览样式 */
+.dnd-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 2px solid #1890ff;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  color: #333333;
+}
