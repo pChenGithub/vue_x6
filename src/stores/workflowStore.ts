@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { Graph } from '@antv/x6'
-import type { NodeType, NodeData, EdgeData } from '@/types/workflow'
+import { EdgeData, NodeData } from '@/types/workflow'
 
 /**
  * 流程编排Store

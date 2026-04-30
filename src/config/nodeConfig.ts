@@ -3,6 +3,8 @@ import ConditionTime from '@/components/ConditionTime.vue'
 import Input from '@/components/Input.vue'
 import Relaytion from '@/components/Relaytion.vue'
 import { NodeType, NodeCategory, NodeConfig } from '@/types/workflow'
+import { opacity } from '@antv/x6/lib/registry/highlighter/opacity'
+import { circle } from '@antv/x6/lib/registry/marker/circle'
 
 /**
  * 节点配置映射表
@@ -14,7 +16,7 @@ const INPUT_HEIGHT = 40
 const CONDITION_WIDTH = 350
 const CONDITION_HEIGHT = 110
 
-const RELATION_WIDTH = 348
+const RELATION_WIDTH = 348+16
 const RELATION_HEIGHT = 216 // 默认高度
 
 const ACTION_WIDTH = 350
@@ -173,26 +175,23 @@ export type PortGroup = 'top' | 'bottom' | 'left' | 'right'
  * 连接柱 groups 配置（用于节点注册）
  */
 const portAttrs = {
-  circle: {r: 5, magnet: true, stroke: 'blue', strokeWidth: 1, fill: '#ffffff',
-    opacity: 1,
+  circle: {r: 5, magnet: true, stroke: 'blue', 
+    strokeWidth: 1, fill: '#ffffff', opacity: 1,
   }
 }
-export const portGroups: Record<PortGroup, {
-  position: PortGroup
-  attrs: { circle: { r: number, magnet: boolean, stroke: string, strokeWidth: number, fill: string } }
-}> = {
-  top: {position: 'top', attrs: portAttrs},
-  bottom: {position: 'bottom', attrs: portAttrs},
-  left: {position: 'left', attrs: portAttrs},
-  right: {position: 'right', attrs: portAttrs}
-}
 
+export const portGroups = {
+  top: {position: "top", attrs: portAttrs},
+  bottom: {position: "bottom", attrs: portAttrs},
+  left: {position: "left", attrs: portAttrs},
+  right: {position: "right", attrs: portAttrs},
+};
 /**
  * 连接柱 items 配置（用于节点实例化）
  */
-export const portItems: { id: PortGroup, group: PortGroup }[] = [
-  { id: 'top', group: 'top' },
-  { id: 'bottom', group: 'bottom' },
-  { id: 'left', group: 'left' },
-  { id: 'right', group: 'right' }
+export const portItems = [
+  { id: 'top', group: 'top', attrs: {circle: {opacity: 1}}},
+  { id: 'bottom', group: 'bottom', attrs: {circle: {opacity: 1}}},
+  { id: 'left', group: 'left'},
+  { id: 'right', group: 'right'}
 ]
